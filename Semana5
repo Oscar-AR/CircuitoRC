@@ -1,4 +1,4 @@
-R1 = 100;
+R1 = 100;   %definición de constantes
 R2 = 100;
 C1 = 10*10^-6;
 C2 = 100*10^-6;
@@ -7,13 +7,14 @@ E = 5;
 a = (RC+R1)*C1*R2*C2;
 b = (RC+R1)*(C1+C2)+R2*C2;
 c = 1;
+%para esta situación s1 siempre será la raíz con menor valor absoluto
 s1 = (-b+sqrt(b^2-4*a*c))/(2*a);
 s2 = (-b-sqrt(b^2-4*a*c))/(2*a);
-A = -C2*E/(1-s1/s2);
+A = -C2*E/(1-s1/s2);  %condiciones dadas por carga y corriente 0 en tiempo 0
 B = -A*s1/s2;
-q2 = @(t) A*exp(s1*t)+B*exp(s2*t)+C2*E;
-I2 = @(t) A*s1*exp(s1*t)+B*s2*exp(s2*t);
-V2 = @(t) q2(t)/C2;
+q2 = @(t) A*exp(s1*t)+B*exp(s2*t)+C2*E;  
+I2 = @(t) A*s1*exp(s1*t)+B*s2*exp(s2*t);  
+V2 = @(t) q2(t)/C2;                    
 I2dev = @(t) A*s1^2*exp(s1*t)+B*s2^2*exp(s2*t);
 V2dev = @(t) I2(t)/C2;
 t = linspace(0,-5/s1,101);
