@@ -1,0 +1,190 @@
+R1 = 100;
+R2 = 100;
+C1 = 10*10^-6;
+C2 = 100*10^-6;
+RC = 1000;
+E = 5;
+a = (RC+R1)*C1*R2*C2;
+b = (RC+R1)*(C1+C2)+R2*C2;
+c = 1;
+s1 = (-b+sqrt(b^2-4*a*c))/(2*a);
+s2 = (-b-sqrt(b^2-4*a*c))/(2*a);
+A = -C2*E/(1-s1/s2);
+B = -A*s1/s2;
+q2 = @(t) A*exp(s1*t)+B*exp(s2*t)+C2*E;
+I2 = @(t) A*s1*exp(s1*t)+B*s2*exp(s2*t);
+V2 = @(t) q2(t)/C2;
+I2dev = @(t) A*s1^2*exp(s1*t)+B*s2^2*exp(s2*t);
+V2dev = @(t) I2(t)/C2;
+t = linspace(0,-5/s1,101);
+% Charge
+valueW = 4.2*10^-4;
+t0 = -2/s1;
+errMax = 0.00001;
+errAct = 1;
+n = 0;
+while errAct > errMax
+    n = n+1;
+    tAct = t0;
+    y0 = q2(t0);
+    t0 = t0 + (valueW-y0)/I2(t0);
+    errAct = abs(tAct-t0);
+end
+subI = 2;
+subJ = ceil((n+1)/2);
+t0 = -2/s1;
+figure(1)
+subplot(subJ,subI,1)
+hold on
+Ft = q2(t);
+plot(t,Ft,"-b")
+plot(t,valueW*ones(1,length(t)),"-k","LineWidth",1)
+axis([min(t) max(t) min(Ft) max(Ft)])
+grid on
+hold off
+xlabel("Tiempo (s)")
+ylabel("Carga (C)")
+title("Carga vs Tiempo")
+Tiempo = zeros(n,1);
+Carga = zeros(n,1);
+Error = zeros(n,1);
+for i=1:n
+    tAct = t0;
+    subplot(subJ,subI,i+1)
+    hold on
+    y0 = q2(t0);
+    yTan = y0 + I2(t0)*(t-t0);
+    plot(t,Ft,"-b")
+    plot(t,valueW*ones([1,length(t)]),"-k","LineWidth",1)
+    axis([min(t) max(t) min(Ft) max(Ft)])
+    grid on
+    xlabel("Tiempo (s)")
+    ylabel("Carga (C)")
+    title("Iteración " + int2str(i))
+    plot(t0,y0,"o","Color","#78038C","LineWidth",1.5)
+    plot(t,yTan,"-r")
+    t0 = t0 + (valueW-y0)/I2(t0);
+    fakeYAxis = linspace(min(Ft),max(Ft),10);
+    plot(t0*ones([1,length(fakeYAxis)]),fakeYAxis,"--k","LineWidth",1)
+    hold off
+    Tiempo(i) = t0;
+    Carga(i) = q2(t0);
+    Error(i) = abs(tAct-t0);
+end
+format shortE
+T = table(Tiempo,Carga,Error);
+display(T)
+% Voltage
+valueW = 3.5;
+t0 = -2/s1;
+errMax = 0.00001;
+errAct = 1;
+n = 0;
+while errAct > errMax
+    n = n+1;
+    tAct = t0;
+    y0 = V2(t0);
+    t0 = t0 + (valueW-y0)/V2dev(t0);
+    errAct = abs(tAct-t0);
+end
+subI = 2;
+subJ = ceil((n+1)/2);
+t0 = -2/s1;
+figure(2)
+subplot(subJ,subI,1)
+hold on
+Ft = V2(t);
+plot(t,Ft,"-b")
+plot(t,valueW*ones(1,length(t)),"-k","LineWidth",1)
+axis([min(t) max(t) min(Ft) max(Ft)])
+grid on
+hold off
+xlabel("Tiempo (s)")
+ylabel("Voltaje (V)")
+title("Voltaje vs Tiempo")
+Tiempo = zeros(n,1);
+Voltaje = zeros(n,1);
+Error = zeros(n,1);
+for i=1:n
+    tAct = t0;
+    subplot(subJ,subI,i+1)
+    hold on
+    y0 = V2(t0);
+    yTan = y0 + V2dev(t0)*(t-t0);
+    plot(t,Ft,"-b")
+    plot(t,valueW*ones([1,length(t)]),"-k","LineWidth",1)
+    axis([min(t) max(t) min(Ft) max(Ft)])
+    grid on
+    xlabel("Tiempo (s)")
+    ylabel("Voltaje (V)")
+    title("Iteración " + int2str(i))
+    plot(t0,y0,"o","Color","#78038C","LineWidth",1.5)
+    plot(t,yTan,"-r")
+    t0 = t0 + (valueW-y0)/V2dev(t0);
+    fakeYAxis = linspace(min(Ft),max(Ft),10);
+    plot(t0*ones([1,length(fakeYAxis)]),fakeYAxis,"--k","LineWidth",1)
+    hold off
+    Tiempo(i) = t0;
+    Voltaje(i) = V2(t0);
+    Error(i) = abs(tAct-t0);
+end
+format shortE
+T = table(Tiempo,Voltaje,Error);
+display(T)
+% Current
+valueW = 1.5*10^-3;
+t0 = -1/s1;
+errMax = 0.00001;
+errAct = 1;
+n = 0;
+while errAct > errMax
+    n = n+1;
+    tAct = t0;
+    y0 = I2(t0);
+    t0 = t0 + (valueW-y0)/I2dev(t0);
+    errAct = abs(tAct-t0);
+end
+subI = 2;
+subJ = ceil((n+1)/2);
+t0 = -1/s1;
+figure(3)
+subplot(subJ,subI,1)
+hold on
+Ft = I2(t);
+plot(t,Ft,"-b")
+plot(t,valueW*ones(1,length(t)),"-k","LineWidth",1)
+axis([min(t) max(t) min(Ft) max(Ft)])
+grid on
+hold off
+xlabel("Tiempo (s)")
+ylabel("Corriente (A)")
+title("Corriente vs Tiempo")
+Tiempo = zeros(n,1);
+Corriente = zeros(n,1);
+Error = zeros(n,1);
+for i=1:n
+    tAct = t0;
+    subplot(subJ,subI,i+1)
+    hold on
+    y0 = I2(t0);
+    yTan = y0 + I2dev(t0)*(t-t0);
+    plot(t,Ft,"-b")
+    plot(t,valueW*ones([1,length(t)]),"-k","LineWidth",1)
+    axis([min(t) max(t) min(Ft) max(Ft)])
+    grid on
+    xlabel("Tiempo (s)")
+    ylabel("Corriente (A)")
+    title("Iteración " + int2str(i))
+    plot(t0,y0,"o","Color","#78038C","LineWidth",1.5)
+    plot(t,yTan,"-r")
+    t0 = t0 + (valueW-y0)/I2dev(t0);
+    fakeYAxis = linspace(min(Ft),max(Ft),10);
+    plot(t0*ones([1,length(fakeYAxis)]),fakeYAxis,"--k","LineWidth",1)
+    hold off
+    Tiempo(i) = t0;
+    Corriente(i) = I2(t0);
+    Error(i) = abs(tAct-t0);
+end
+format shortE
+T = table(Tiempo,Corriente,Error);
+display(T)
