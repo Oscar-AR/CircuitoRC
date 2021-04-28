@@ -226,13 +226,13 @@ s1 = @(RC) abs((-b(RC)+sqrt((b(RC))^2-4*a(RC)*c))/(2*a(RC)));
 %s2 = @(RC) (-b(RC)-sqrt((b(RC)).^2-4*a(RC)*c))/(2*a(RC));
 % Ploteamos el comportamiento de s1 con RC
 RC = 1:100;
-roots = zeros(1,length(RC));
+tCharges = zeros(1,length(RC));
 for i = 1:100
-    roots(i) = 5*1000/s1(RC(i));
+    tCharges(i) = 5*1000/s1(RC(i));
 end
 figure(1)
 hold on
-plot(RC,roots,"-b")
+plot(RC,tCharges,"-b")
 axis([1 100 5000/s1(1) 5000/s1(100)])    % Eje vertical arbitrario
 grid on
 plot(RC,(5000/sRes)*ones(1,length(RC)),"-k","LineWidth",2)
